@@ -1,13 +1,11 @@
-<h1 align="center">Pay</h1>
+<h1 align="center">EasyPay</h1>
 
 <p align="center">
-<a href="https://scrutinizer-ci.com/g/shuxian/pay/?branch=master"><img src="https://scrutinizer-ci.com/g/shuxian/pay/badges/quality-score.png?b=master" alt="Scrutinizer Code Quality"></a>
-<a href="https://scrutinizer-ci.com/g/shuxian/pay/build-status/master"><img src="https://scrutinizer-ci.com/g/shuxian/pay/badges/build.png?b=master" alt="Build Status"></a>
-<a href="https://packagist.org/packages/shuxian/pay"><img src="https://poser.pugx.org/shuxian/pay/v/stable" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/shuxian/pay"><img src="https://poser.pugx.org/shuxian/pay/downloads" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/shuxian/pay"><img src="https://poser.pugx.org/shuxian/pay/v/unstable" alt="Latest Unstable Version"></a>
-<a href="https://packagist.org/packages/shuxian/pay"><img src="https://poser.pugx.org/shuxian/pay/license" alt="License"></a>
-</p>
+<a href="https://packagist.org/packages/shuxian/easy-pay"><img src="https://poser.pugx.org/yansongda/pay/v/stable" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/shuxian/easy-pay"><img src="https://poser.pugx.org/yansongda/pay/downloads" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/shuxian/easy-pay"><img src="https://poser.pugx.org/yansongda/pay/v/unstable" alt="Latest Unstable Version"></a>
+<a href="https://packagist.org/packages/shuxian/easy-pay"><img src="https://poser.pugx.org/yansongda/pay/license" alt="License"></a>
+</p></p>
 
 
 
@@ -17,10 +15,9 @@
 
 欢迎 Star，欢迎 PR！
 
-laravel 扩展包请 [传送至这里](https://github.com/shuxian/laravel-pay)
-yii 扩展包请 [传送至这里](https://github.com/guanguans/yii-pay)
+laravel 扩展包请 [传送至这里](https://github.com/i838847058/laravel-pay)
+yii 扩展包请 [传送至这里](https://github.com/i838847058/yii-pay)
 
-QQ交流群：690027516
 
 ## 特点
 - 丰富的事件系统
@@ -37,7 +34,7 @@ QQ交流群：690027516
 - PHP 7.0+ (v2.8.0 开始 >= 7.1.3)
 - composer
 
-> php5 请使用 v1.x 版本[https://github.com/shuxian/pay/tree/v1.x](https://github.com/shuxian/pay/tree/v1.x)
+> php5 无法使用
 
 
 ## 支持的支付方法
@@ -122,7 +119,7 @@ QQ交流群：690027516
 
 ## 安装
 ```shell
-composer require shuxian/pay -vvv
+composer require shuxian/easy-pay -vvv
 ```
 
 ## 使用说明
@@ -278,10 +275,89 @@ class PayController
 ```
 
 ## 事件系统
-[请见详细文档](http://pay.shuxian.cn)
+**在支付过程中，可能会想监听一些事件，好同时处理一些其它任务。
+SDK 使用 symfony/event-dispatcher 组件进行事件的相关操作。**
+
+支付初始化完毕
+事件类：Yansongda\Pay\Events\PayStarted
+说明：此事件将在所有参数处理完毕时抛出。
+额外数据：
+$driver (支付机构)
+$gateway (支付网关)
+$endpoint (支付的 url endpoint)
+$payload (数据)
+
+开始调用API
+事件类：Yansongda\Pay\Events\ApiRequesting
+说明：此事件将在请求支付方的 API 前抛出。
+额外数据：
+$driver (支付机构)
+$gateway (支付网关)
+$endpoint (支付的 url endpoint)
+$payload (数据)
+
+调用API结束
+事件类：Yansongda\Pay\Events\ApiRequested
+说明：此事件将在请求支付方的 API 完成之后抛出。
+额外数据：
+$driver (支付机构)
+$gateway (支付网关)
+$endpoint (支付的 url endpoint)
+$result (请求后的返回数据)
+
+验签失败
+事件类：Yansongda\Pay\Events\SignFailed
+说明：此事件将在签名验证失败时抛出。
+额外数据：
+$driver (支付机构)
+$gateway (支付网关)
+$data (验签数据)
+
+收到通知
+事件类：Yansongda\Pay\Events\RequestReceived
+说明：此事件将在收到支付方的请求（通常在异步通知或同步通知）时抛出
+额外数据：
+$driver (支付机构)
+$gateway (支付网关)
+$data (收到的数据)
+
+调用其它方法
+事件类：Yansongda\Pay\Events\MethodCalled
+说明：此事件将在调用除 PAYMETHOD 方法（例如，查询订单，退款，取消订单）时抛出
+额外数据：
+$driver (支付机构)
+$gateway (调用方法)
+$endpoint (支付的 url endpoint)
+$payload (数据)
 
 ## 详细文档
-[详细说明文档](http://pay.shuxian.cn)
+使用事件系统前，确保已初始化 pay。即调用了 Pay::xxx($config)
+
+```<?php
+
+use Yansongda\Pay\Events;
+use Yansongda\Pay\Events\PayStarting;
+
+// 1. 新建一个监听器
+class PayStartingListener
+{
+    public function sendEmail(PayStarting $event)
+    {
+        // 可以直接通过 $event 获取事件的额外数据，例如：
+        //      支付提供商： $event->driver   // alipay/wechat
+        //      支付 gateway：$event->gateway  // app/web/pos/scan ...
+        //      支付传递的参数：$event->params
+
+        // coding to send email...
+    }
+}
+```
+
+2. 添加监听器
+```
+Events::addListener(PayStarting::class, [new PayStartingListener(), 'sendEmail']);
+```
+
 
 ## 错误
 如果在调用相关支付网关 API 时有错误产生，会抛出 `GatewayException`,`InvalidSignException` 错误，可以通过 `$e->getMessage()` 查看，同时，也可通过 `$e->raw` 查看调用 API 后返回的原始数据，该值为数组格式。
@@ -299,9 +375,6 @@ class PayController
 
 如果您有其它支付网关的需求，或者发现本项目中需要改进的代码，**_欢迎 Fork 并提交 PR！_**
 
-## 赏一杯咖啡吧
-
-![pay](https://pay.yanda.net.cn/images/pay.jpg)
 
 ## LICENSE
 MIT

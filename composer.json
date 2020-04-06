@@ -1,5 +1,5 @@
 {
-    "name": "shuxian/pay",
+    "name": "shuxian/easy-pay",
     "description": "专注 Alipay 和 WeChat 的支付扩展包",
     "keywords": ["alipay", "wechat", "pay"],
     "type": "library",
@@ -7,20 +7,14 @@
         "issues": "https://github.com/shuxian/pay/issues",
         "source": "https://github.com/shuxian/pay"
     },
-    "authors": [
-        {
-            "name": "shuxian",
-            "email": "me@shuxian.cn"
-        }
-    ],
     "require": {
-        "php": ">=7.1.3",
+        "php": ">=7.0.0",
         "ext-openssl": "*",
         "ext-simplexml":"*",
         "ext-libxml": "*",
         "ext-json": "*",
         "ext-bcmath": "*",
-        "shuxian/supports": "^2.0",
+        "yansongda/supports": "^2.0",
         "symfony/http-foundation": "^4.0 || ^5.0",
         "symfony/event-dispatcher": "^4.0 || ^5.0"
     },
